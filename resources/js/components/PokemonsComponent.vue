@@ -10,7 +10,17 @@
             :server-items-length="total"
             :options.sync="options"
             class="elevation-1"
-        ></v-data-table>
+        >
+            <template v-slot:item.image="{ item }">
+                <v-img :src="item.image" :alt="item.name" aspect-ratio="1"></v-img>
+            </template>
+
+            <template v-slot:item.details="{ item }">
+                <v-btn color="error" fab small dark>
+                    <v-icon>mdi-pokeball</v-icon>
+                </v-btn>
+            </template>
+        </v-data-table>
     </div>
 </template>
 
@@ -24,6 +34,7 @@
                 'items-per-page-options': [5, 10, 15]
             },
             headers: [
+                {text: 'Image', sortable: false, value: 'image'},
                 {text: 'N°', sortable: false, value: 'number'},
                 {text: 'Name', sortable: false, value: 'name'},
                 {text: 'Details', sortable: false, value: 'details'}
@@ -63,7 +74,9 @@
                             this.loading = false;
                             response.data.results.forEach(result => {
                                 result.name = result.name.charAt(0).toUpperCase() + result.name.slice(1);
-                                result.number = result.url.replace(/\D/g,'').substr(1);
+                                result.number = result.url.replace(/\D/g, '').substr(1);
+                                result.image = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${result.number}.png`;
+
                             });
                             resolve({
                                 items: response.data.results,

@@ -2043,6 +2043,16 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -2053,6 +2063,10 @@ __webpack_require__.r(__webpack_exports__);
         'items-per-page-options': [5, 10, 15]
       },
       headers: [{
+        text: 'Image',
+        sortable: false,
+        value: 'image'
+      }, {
         text: 'N°',
         sortable: false,
         value: 'number'
@@ -2105,6 +2119,7 @@ __webpack_require__.r(__webpack_exports__);
           response.data.results.forEach(function (result) {
             result.name = result.name.charAt(0).toUpperCase() + result.name.slice(1);
             result.number = result.url.replace(/\D/g, '').substr(1);
+            result.image = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/".concat(result.number, ".png");
           });
           resolve({
             items: response.data.results,
@@ -38042,7 +38057,38 @@ var render = function() {
           "update:options": function($event) {
             _vm.options = $event
           }
-        }
+        },
+        scopedSlots: _vm._u([
+          {
+            key: "item.image",
+            fn: function(ref) {
+              var item = ref.item
+              return [
+                _c("v-img", {
+                  attrs: {
+                    src: item.image,
+                    alt: item.name,
+                    "aspect-ratio": "1"
+                  }
+                })
+              ]
+            }
+          },
+          {
+            key: "item.details",
+            fn: function(ref) {
+              var item = ref.item
+              return [
+                _c(
+                  "v-btn",
+                  { attrs: { color: "error", fab: "", small: "", dark: "" } },
+                  [_c("v-icon", [_vm._v("mdi-pokeball")])],
+                  1
+                )
+              ]
+            }
+          }
+        ])
       })
     ],
     1
