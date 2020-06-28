@@ -24,6 +24,7 @@
         "vue-template-compiler": "^2.6.10"
     },
     "dependencies": {
+        "debounce": "^1.2.0",
         "vue-axios": "^2.1.5",
         "vuetify": "^2.3.2"
     }

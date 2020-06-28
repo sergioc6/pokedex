@@ -12,9 +12,8 @@ window.Vue = require('vue');
 
 import Vuetify from 'vuetify';
 import axios from 'axios'
-import VueAxios from 'vue-axios'
 
-Vue.use(Vuetify, VueAxios, axios)
+Vue.use(Vuetify, axios)
 
 /**
  * The following block of code may be used to automatically register your

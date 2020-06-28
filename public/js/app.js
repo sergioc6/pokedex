@@ -2053,9 +2053,30 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
+      search: '',
       loading: true,
       total: 0,
       options: {},
@@ -2083,49 +2104,31 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   watch: {
-    options: {
-      handler: function handler() {
-        var _this = this;
-
-        this.getDataFromApi().then(function (data) {
-          _this.pokemons = data.items;
-          _this.total = data.total;
-        });
-      },
-      deep: true
+    options: function options() {
+      this.getDataFromApi();
     }
   },
   mounted: function mounted() {
-    var _this2 = this;
-
-    this.getDataFromApi().then(function (data) {
-      _this2.pokemons = data.items;
-      _this2.total = data.total;
-    });
+    this.getDataFromApi();
   },
   methods: {
     getDataFromApi: function getDataFromApi() {
-      var _this3 = this;
+      var _this = this;
 
       this.loading = true;
-      return new Promise(function (resolve, reject) {
-        var _this3$options = _this3.options,
-            page = _this3$options.page,
-            itemsPerPage = _this3$options.itemsPerPage;
-        var limit = itemsPerPage;
-        var offset = (page - 1) * itemsPerPage;
-        axios.get("http://pokeapi.salestock.net/api/v2/pokemon/?limit=".concat(limit, "&offset=").concat(offset)).then(function (response) {
-          _this3.loading = false;
-          response.data.results.forEach(function (result) {
-            result.name = result.name.charAt(0).toUpperCase() + result.name.slice(1);
-            result.number = result.url.replace(/\D/g, '').substr(1);
-            result.image = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/".concat(result.number, ".png");
-          });
-          resolve({
-            items: response.data.results,
-            total: response.data.count
-          });
-        });
+      var _this$options = this.options,
+          page = _this$options.page,
+          itemsPerPage = _this$options.itemsPerPage;
+      var search = this.search;
+
+      if (search === null) {
+        search = '';
+      }
+
+      axios.get("/api/pokemons?page=".concat(page, "&page_size=").concat(itemsPerPage, "&search=").concat(search)).then(function (response) {
+        _this.loading = false;
+        _this.pokemons = response.data.data.items;
+        _this.total = response.data.data.total;
       });
     }
   }
@@ -37843,19 +37846,6 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
 
 /***/ }),
 
-/***/ "./node_modules/vue-axios/dist/vue-axios.min.js":
-/*!******************************************************!*\
-  !*** ./node_modules/vue-axios/dist/vue-axios.min.js ***!
-  \******************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var _typeof="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(o){return typeof o}:function(o){return o&&"function"==typeof Symbol&&o.constructor===Symbol&&o!==Symbol.prototype?"symbol":typeof o};!function(){function o(e,t){if(!o.installed){if(o.installed=!0,!t)return void console.error("You have to install axios");e.axios=t,Object.defineProperties(e.prototype,{axios:{get:function(){return t}},$http:{get:function(){return t}}})}}"object"==( false?undefined:_typeof(exports))?module.exports=o: true?!(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = (function(){return o}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__)):undefined}();
-
-/***/ }),
-
 /***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/DefaultComponent.vue?vue&type=template&id=9ddb97b2&":
 /*!*******************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/DefaultComponent.vue?vue&type=template&id=9ddb97b2& ***!
@@ -38042,54 +38032,106 @@ var render = function() {
     [
       _c("h1", [_vm._v(" Pokemons ")]),
       _vm._v(" "),
-      _c("v-data-table", {
-        staticClass: "elevation-1",
-        attrs: {
-          headers: _vm.headers,
-          items: _vm.pokemons,
-          "items-per-page": 15,
-          "footer-props": _vm.footerProps,
-          loading: _vm.loading,
-          "server-items-length": _vm.total,
-          options: _vm.options
-        },
-        on: {
-          "update:options": function($event) {
-            _vm.options = $event
-          }
-        },
-        scopedSlots: _vm._u([
-          {
-            key: "item.image",
-            fn: function(ref) {
-              var item = ref.item
-              return [
-                _c("v-img", {
-                  attrs: {
-                    src: item.image,
-                    alt: item.name,
-                    "aspect-ratio": "1"
-                  }
-                })
-              ]
+      _c(
+        "v-card",
+        [
+          _c("v-text-field", {
+            attrs: {
+              label: "Search Pokemon by number or name",
+              color: "primary"
+            },
+            on: {
+              keypress: function($event) {
+                if (
+                  !$event.type.indexOf("key") &&
+                  _vm._k($event.keyCode, "enter", 13, $event.key, "Enter")
+                ) {
+                  return null
+                }
+                return _vm.getDataFromApi($event)
+              }
+            },
+            scopedSlots: _vm._u([
+              {
+                key: "append",
+                fn: function() {
+                  return [
+                    _c(
+                      "v-btn",
+                      {
+                        staticClass: "ma-0",
+                        attrs: { depressed: "", tile: "", color: "primary" },
+                        on: { click: _vm.getDataFromApi }
+                      },
+                      [_vm._v("\n                    Find\n                ")]
+                    )
+                  ]
+                },
+                proxy: true
+              }
+            ]),
+            model: {
+              value: _vm.search,
+              callback: function($$v) {
+                _vm.search = $$v
+              },
+              expression: "search"
             }
-          },
-          {
-            key: "item.details",
-            fn: function(ref) {
-              var item = ref.item
-              return [
-                _c(
-                  "v-btn",
-                  { attrs: { color: "error", fab: "", small: "", dark: "" } },
-                  [_c("v-icon", [_vm._v("mdi-pokeball")])],
-                  1
-                )
-              ]
-            }
-          }
-        ])
-      })
+          }),
+          _vm._v(" "),
+          _c("v-data-table", {
+            staticClass: "elevation-1",
+            attrs: {
+              headers: _vm.headers,
+              items: _vm.pokemons,
+              "items-per-page": 15,
+              "footer-props": _vm.footerProps,
+              loading: _vm.loading,
+              "server-items-length": _vm.total,
+              options: _vm.options
+            },
+            on: {
+              "update:options": function($event) {
+                _vm.options = $event
+              }
+            },
+            scopedSlots: _vm._u([
+              {
+                key: "item.image",
+                fn: function(ref) {
+                  var item = ref.item
+                  return [
+                    _c("v-img", {
+                      attrs: {
+                        src: item.image,
+                        alt: item.name,
+                        "aspect-ratio": "1"
+                      }
+                    })
+                  ]
+                }
+              },
+              {
+                key: "item.details",
+                fn: function(ref) {
+                  var item = ref.item
+                  return [
+                    _c(
+                      "v-btn",
+                      {
+                        attrs: { color: "error", fab: "", small: "", dark: "" }
+                      },
+                      [_c("v-icon", [_vm._v("mdi-pokeball")])],
+                      1
+                    )
+                  ]
+                }
+              }
+            ])
+          })
+        ],
+        1
+      )
     ],
     1
   )
@@ -94068,8 +94110,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vuetify__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(vuetify__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var vue_axios__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! vue-axios */ "./node_modules/vue-axios/dist/vue-axios.min.js");
-/* harmony import */ var vue_axios__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(vue_axios__WEBPACK_IMPORTED_MODULE_3__);
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
@@ -94082,8 +94122,7 @@ __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
 window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.js");
 
 
-
-Vue.use(vuetify__WEBPACK_IMPORTED_MODULE_1___default.a, vue_axios__WEBPACK_IMPORTED_MODULE_3___default.a, axios__WEBPACK_IMPORTED_MODULE_2___default.a);
+Vue.use(vuetify__WEBPACK_IMPORTED_MODULE_1___default.a, axios__WEBPACK_IMPORTED_MODULE_2___default.a);
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue

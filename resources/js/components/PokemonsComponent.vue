@@ -1,32 +1,53 @@
 <template>
     <div>
         <h1> Pokemons </h1>
-        <v-data-table
-            :headers="headers"
-            :items="pokemons"
-            :items-per-page="15"
-            :footer-props="footerProps"
-            :loading="loading"
-            :server-items-length="total"
-            :options.sync="options"
-            class="elevation-1"
-        >
-            <template v-slot:item.image="{ item }">
-                <v-img :src="item.image" :alt="item.name" aspect-ratio="1"></v-img>
-            </template>
+        <v-card>
+            <v-text-field
+                label="Search Pokemon by number or name"
+                color="primary"
+                v-model="search"
+                @keypress.enter="getDataFromApi">
 
-            <template v-slot:item.details="{ item }">
-                <v-btn color="error" fab small dark>
-                    <v-icon>mdi-pokeball</v-icon>
-                </v-btn>
-            </template>
-        </v-data-table>
+                <template v-slot:append>
+                    <v-btn
+                        depressed
+                        tile
+                        color="primary"
+                        class="ma-0"
+                        @click="getDataFromApi">
+                        Find
+                    </v-btn>
+                </template>
+            </v-text-field>
+
+            <v-data-table
+                :headers="headers"
+                :items="pokemons"
+                :items-per-page="15"
+                :footer-props="footerProps"
+                :loading="loading"
+                :server-items-length="total"
+                :options.sync="options"
+                class="elevation-1"
+            >
+                <template v-slot:item.image="{ item }">
+                    <v-img :src="item.image" :alt="item.name" aspect-ratio="1"></v-img>
+                </template>
+
+                <template v-slot:item.details="{ item }">
+                    <v-btn color="error" fab small dark>
+                        <v-icon>mdi-pokeball</v-icon>
+                    </v-btn>
+                </template>
+            </v-data-table>
+        </v-card>
     </div>
 </template>
 
 <script>
     export default {
         data: () => ({
+            search: '',
             loading: true,
             total: 0,
             options: {},
@@ -42,48 +63,29 @@
             pokemons: [],
         }),
         watch: {
-            options: {
-                handler() {
-                    this.getDataFromApi()
-                        .then(data => {
-                            this.pokemons = data.items
-                            this.total = data.total
-                        })
-                },
-                deep: true,
-            },
+            options() {
+                this.getDataFromApi();
+            }
         },
         mounted() {
-            this.getDataFromApi()
-                .then(data => {
-                    this.pokemons = data.items;
-                    this.total = data.total;
-                })
+            this.getDataFromApi();
         },
         methods: {
             getDataFromApi() {
                 this.loading = true;
 
-                return new Promise((resolve, reject) => {
-                    const {page, itemsPerPage} = this.options
-                    const limit = itemsPerPage;
-                    const offset = (page - 1) * itemsPerPage;
+                const {page, itemsPerPage} = this.options;
+                let search = this.search
+                if (search === null) {
+                    search = '';
+                }
 
-                    axios.get(`http://pokeapi.salestock.net/api/v2/pokemon/?limit=${limit}&offset=${offset}`)
-                        .then((response) => {
-                            this.loading = false;
-                            response.data.results.forEach(result => {
-                                result.name = result.name.charAt(0).toUpperCase() + result.name.slice(1);
-                                result.number = result.url.replace(/\D/g, '').substr(1);
-                                result.image = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${result.number}.png`;
-
-                            });
-                            resolve({
-                                items: response.data.results,
-                                total: response.data.count
-                            })
-                        });
-                });
+                axios.get(`/api/pokemons?page=${page}&page_size=${itemsPerPage}&search=${search}`)
+                    .then((response) => {
+                        this.loading = false;
+                        this.pokemons = response.data.data.items;
+                        this.total = response.data.data.total;
+                    });
             }
         }
     }
