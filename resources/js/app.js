@@ -31,6 +31,7 @@ Vue.component('default-component', require('./components/DefaultComponent.vue').
 Vue.component('pokemons-component', require('./components/PokemonsComponent.vue').default);
 Vue.component('types-component', require('./components/TypesComponent.vue').default);
 Vue.component('regions-component', require('./components/RegionsComponent.vue').default);
+Vue.component('pokemon-detail-component', require('./components/PokemonDetailComponent.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

@@ -35,11 +35,16 @@
                 </template>
 
                 <template v-slot:item.details="{ item }">
-                    <v-btn color="error" fab small dark>
+                    <v-btn color="error" fab small dark @click="selectedPokemon(item)">
                         <v-icon>mdi-pokeball</v-icon>
                     </v-btn>
                 </template>
             </v-data-table>
+
+            <pokemon-detail-component
+                :number="pokemonSelected"
+                :view="showDetail">
+            </pokemon-detail-component>
         </v-card>
     </div>
 </template>
@@ -61,16 +66,20 @@
                 {text: 'Details', sortable: false, value: 'details'}
             ],
             pokemons: [],
+            pokemonSelected: null,
+            showDetail: false,
         }),
-        watch: {
-            options() {
-                this.getDataFromApi();
-            }
-        },
+
+
         mounted() {
             this.getDataFromApi();
         },
         methods: {
+            selectedPokemon(item) {
+                this.pokemonSelected = item.number;
+                this.showDetail = true;
+            },
+
             getDataFromApi() {
                 this.loading = true;
 

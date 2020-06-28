@@ -61,7 +61,7 @@ class PokemonsController
                     $name = strtoupper($value['name']);
                     similar_text($search, $name, $percent);
 
-                    $result = ($percent > 80);
+                    $result = ($percent > 60);
                 }
                 return $result;
             });
